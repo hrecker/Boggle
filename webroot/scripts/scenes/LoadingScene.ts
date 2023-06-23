@@ -39,8 +39,8 @@ export class LoadingScene extends Phaser.Scene {
         this.load.on('complete', () => {
             // Start the main menu scene
             loadConfig(this.cache.json.get("config"));
-            console.log("Loading complete");
-            //TODO load scenes
+            this.scene.start("MainScene")
+                      .stop();
         })
     }
 
