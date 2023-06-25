@@ -1,8 +1,11 @@
 import { generateBoard, Board } from "../model/Board";
 import { config } from "../model/Config";
 
+const tileMargin = 85;
+
 export class MainScene extends Phaser.Scene {
-    boardRows: Phaser.GameObjects.Text[][];
+    boardTiles: Phaser.GameObjects.Sprite[][];
+    boardLetters: Phaser.GameObjects.Text[][];
     downLastUpdate: boolean;
 
     constructor() {
@@ -20,13 +23,18 @@ export class MainScene extends Phaser.Scene {
     }
 
     create() {
+        this.cameras.main.setBackgroundColor(0x963C3C);
         this.downLastUpdate = false;
 
-        this.boardRows = [];
+        this.boardLetters = [];
+        this.boardTiles = [];
         for (let i = 0; i < config()["boardSize"]; i++) {
-            this.boardRows.push([]);
+            this.boardLetters.push([]);
+            this.boardTiles.push([]);
             for (let j = 0; j < config()["boardSize"]; j++) {
-                this.boardRows[i].push(this.add.text((j + 1) * 25, (i + 1) * 25, ""));
+                //TODO resizing
+                this.boardTiles[i].push(this.add.sprite((j + 1) * tileMargin + 200, (i + 1) * tileMargin - 10, "tile"));
+                this.boardLetters[i].push(this.add.text((j + 1) * tileMargin + 200, (i + 1) * tileMargin - 10, "", config()["tileStyle"]).setOrigin(0.5));
             }
         }
 
@@ -37,11 +45,9 @@ export class MainScene extends Phaser.Scene {
     }
 
     loadBoard(board: Board) {
-        console.log("New board");
-        console.log(board.rows);
         for (let i = 0; i < config()["boardSize"]; i++) {
             for (let j = 0; j < config()["boardSize"]; j++) {
-                this.boardRows[i][j].setText(board.rows[i][j]);
+                this.boardLetters[i][j].setText(board.rows[i][j]);
             }
         }
     }

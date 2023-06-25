@@ -33,6 +33,8 @@ export class LoadingScene extends Phaser.Scene {
         this.resize(true);
         this.scale.on("resize", this.resize, this);
 
+        this.load.image("tile", "assets/sprites/tile.png");
+
         // Load json
         this.load.json("config", "assets/json/config.json");
         this.load.start();
