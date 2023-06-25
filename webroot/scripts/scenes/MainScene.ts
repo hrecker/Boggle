@@ -6,7 +6,9 @@ const tileMargin = 85;
 export class MainScene extends Phaser.Scene {
     boardTiles: Phaser.GameObjects.Sprite[][];
     boardLetters: Phaser.GameObjects.Text[][];
-    downLastUpdate: boolean;
+    resetButton: Phaser.GameObjects.Sprite;
+
+    selectedButton: string;
 
     constructor() {
         super({
@@ -24,7 +26,6 @@ export class MainScene extends Phaser.Scene {
 
     create() {
         this.cameras.main.setBackgroundColor(0x963C3C);
-        this.downLastUpdate = false;
 
         this.boardLetters = [];
         this.boardTiles = [];
@@ -37,6 +38,9 @@ export class MainScene extends Phaser.Scene {
                 this.boardLetters[i].push(this.add.text((j + 1) * tileMargin + 200, (i + 1) * tileMargin - 10, "", config()["tileStyle"]).setOrigin(0.5));
             }
         }
+
+        this.resetButton = this.add.sprite(80, 200, "tile");
+        this.configureButton(this.resetButton, "reset");
 
         this.loadBoard(generateBoard(config()["boardSize"]));
 
@@ -52,10 +56,31 @@ export class MainScene extends Phaser.Scene {
         }
     }
 
-    update() {
-        if (this.input.activePointer.isDown && ! this.downLastUpdate) {
-            this.loadBoard(generateBoard(config()["boardSize"]));
+    configureButton(button: Phaser.GameObjects.Image, buttonName: string/*, defaultTexture: string, downTexture: string*/) {
+        button.setInteractive();
+        button.on('pointerout', () => {
+            //button.setTexture(defaultTexture); 
+            this.selectedButton = null;
+        });
+        button.on('pointerdown', () => {
+            //button.setTexture(downTexture);
+            this.selectedButton = buttonName;
+            //playSound(this, ButtonClick);
+        });
+        button.on('pointerup', () => {
+            if (this.selectedButton === buttonName) {
+                this.handleButtonClick(buttonName);
+            }
+            //button.setTexture(defaultTexture);
+            this.selectedButton = null;
+        });
+    }
+
+    handleButtonClick(buttonName) {
+        switch (buttonName) {
+            case "reset":
+                this.loadBoard(generateBoard(config()["boardSize"]));
+                break;
         }
-        this.downLastUpdate = this.input.activePointer.isDown;
     }
 }
