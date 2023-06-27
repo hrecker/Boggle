@@ -1,7 +1,7 @@
 {
     "boardSize": 4,
     "tileStyle": { 
-        "font": "bold 40px Verdana",
+        "font": "bold 42px Verdana",
         "color": "#000000"
     }
 }
