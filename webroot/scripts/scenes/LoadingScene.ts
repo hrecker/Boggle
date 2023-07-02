@@ -37,6 +37,7 @@ export class LoadingScene extends Phaser.Scene {
 
         // Load json
         this.load.json("config", "assets/json/config.json");
+        this.load.json("dictionary", "assets/json/words_alpha.json");
         this.load.start();
         this.load.on('complete', () => {
             // Start the main menu scene

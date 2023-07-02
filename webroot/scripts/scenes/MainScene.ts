@@ -1,5 +1,5 @@
 import { generateBoard, Board } from "../model/Board";
-import { config } from "../model/Config";
+import { config, dictionary } from "../model/Config";
 
 const tileMargin = 85;
 
@@ -145,18 +145,28 @@ export class MainScene extends Phaser.Scene {
     }
 
     finishWord() {
-        console.log("Finished word: " + this.currentWord);
+        if (this.currentWord.length < 3) {
+            this.finishedWord.text = "Word too short!";
+        } else {
+            let word = "";
+            this.currentWord.forEach(tile => {
+                word += tile;
+            })
+
+            // Check if word is valid
+            if (this.cache.json.get("dictionary")[word]) {
+                this.finishedWord.text = word;
+            } else {
+                this.finishedWord.text = "Invalid word!";
+            }
+        }
+
         for (let i = 0; i < this.tilesUsed.length; i++) {
             for (let j = 0; j < this.tilesUsed[i].length; j++) {
                 this.tilesUsed[i][j] = false;
                 this.boardLetters[i][j].setColor("black");
             }
         }
-        let word = "";
-        this.currentWord.forEach(tile => {
-            word += tile;
-        })
-        this.finishedWord.text = word;
         this.buildingWord = false;
         this.currentWord = [];
     }
