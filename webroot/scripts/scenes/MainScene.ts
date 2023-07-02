@@ -1,5 +1,5 @@
 import { generateBoard, Board } from "../model/Board";
-import { config, dictionary } from "../model/Config";
+import { config } from "../model/Config";
 
 const tileMargin = 85;
 
@@ -8,6 +8,7 @@ export class MainScene extends Phaser.Scene {
     boardLetters: Phaser.GameObjects.Text[][];
     resetButton: Phaser.GameObjects.Sprite;
     finishedWord: Phaser.GameObjects.Text;
+    wordConnections: Phaser.GameObjects.Line[];
 
     selectedButton: string;
     buildingWord: boolean;
@@ -33,6 +34,7 @@ export class MainScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor(0x963C3C);
         this.buildingWord = false;
         this.currentWord = [];
+        this.wordConnections = [];
         this.lastTile = Phaser.Math.Vector2.ZERO.clone();
 
         this.tilesUsed = [];
@@ -117,7 +119,7 @@ export class MainScene extends Phaser.Scene {
         });
         text.on('pointerover', () => {
             if (this.buildingWord && ! this.tilesUsed[i][j] && this.tileInRange(i, j)) {
-                this.addTileToWord(i, j);
+                this.addTileToWord(i, j, false);
             }
         });
         this.boardLetters[i].push(text);
@@ -127,7 +129,7 @@ export class MainScene extends Phaser.Scene {
         if (! this.buildingWord) {
             console.log("Clicked tile: " + this.boardLetters[i][j].text);
             this.buildingWord = true;
-            this.addTileToWord(i, j);
+            this.addTileToWord(i, j, true);
         }
     }
 
@@ -135,8 +137,16 @@ export class MainScene extends Phaser.Scene {
         return Math.abs(i - this.lastTile.x) <= 1 && Math.abs(j - this.lastTile.y) <= 1;
     }
 
-    addTileToWord(i: number, j: number) {
+    addTileToWord(i: number, j: number, isFirstLetter: boolean) {
         console.log("Adding text " + this.boardLetters[i][j].text);
+        if (! isFirstLetter) {
+            let lastTilePos = new Phaser.Math.Vector2(this.boardTiles[this.lastTile.x][this.lastTile.y].getCenter().x,
+                this.boardTiles[this.lastTile.x][this.lastTile.y].getCenter().y);
+            let newTilePos = new Phaser.Math.Vector2(this.boardTiles[i][j].getCenter().x,
+                this.boardTiles[i][j].getCenter().y);
+            this.wordConnections.push(this.add.line(0, 0, lastTilePos.x, lastTilePos.y,
+                newTilePos.x, newTilePos.y, 0x000000, 0.3).setOrigin(0, 0).setLineWidth(3, 1));
+        }
         this.currentWord.push(this.boardLetters[i][j].text);
         this.tilesUsed[i][j] = true;
         this.lastTile.x = i;
@@ -167,8 +177,12 @@ export class MainScene extends Phaser.Scene {
                 this.boardLetters[i][j].setColor("black");
             }
         }
-        this.buildingWord = false;
+        this.wordConnections.forEach(line => {
+            line.destroy();
+        })
+        this.wordConnections = [];
         this.currentWord = [];
+        this.buildingWord = false;
     }
 
     update() {
