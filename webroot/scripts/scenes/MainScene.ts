@@ -8,6 +8,7 @@ export class MainScene extends Phaser.Scene {
     boardLetters: Phaser.GameObjects.Text[][];
     resetButton: Phaser.GameObjects.Sprite;
     finishedWord: Phaser.GameObjects.Text;
+    finishedWordPoints: Phaser.GameObjects.Text;
     wordConnections: Phaser.GameObjects.Line[];
 
     scoreDisplay: Phaser.GameObjects.Text;
@@ -19,6 +20,8 @@ export class MainScene extends Phaser.Scene {
     usedWords: { [word: string]: boolean };
     tilesUsed: boolean[][];
     lastTile: Phaser.Math.Vector2;
+
+    usedWordsColumn: Phaser.GameObjects.Text;
 
     constructor() {
         super({
@@ -60,10 +63,13 @@ export class MainScene extends Phaser.Scene {
         this.configureButton(this.resetButton, "reset");
 
         // Track a few finished words
-        this.finishedWord = this.add.text(520, 190, "", { ...config()["tileStyle"], font: "bold 26px Verdana" });
+        this.finishedWord = this.add.text(520, 90, "", { ...config()["tileStyle"], font: "bold 32px Verdana" });
+        this.finishedWordPoints = this.add.text(520, 90, "", { ...config()["tileStyle"], font: "bold 30px Verdana" });
 
-        this.scoreDisplay = this.add.text(520, 50, "", { ...config()["tileStyle"], font: "bold 26px Verdana" })
+        this.scoreDisplay = this.add.text(520, 40, "", { ...config()["tileStyle"], font: "bold 26px Verdana" });
         this.setScore(0);
+
+        this.usedWordsColumn = this.add.text(530, 120, "", { ...config()["tileStyle"], font: "bold 24px Verdana" }).setWordWrapWidth(1);
 
         this.loadBoard(generateBoard(config()["boardSize"]));
 
@@ -110,6 +116,9 @@ export class MainScene extends Phaser.Scene {
                 this.loadBoard(generateBoard(config()["boardSize"]));
                 this.setScore(0);
                 this.usedWords = {};
+                this.finishedWord.text = "";
+                this.finishedWordPoints.text = "";
+                this.usedWordsColumn.text = "";
                 break;
         }
     }
@@ -170,6 +179,7 @@ export class MainScene extends Phaser.Scene {
     }
 
     finishWord() {
+        this.finishedWordPoints.text = "";
         if (this.currentWord.length < 3) {
             this.finishedWord.text = "Word too short!";
         } else {
@@ -194,6 +204,9 @@ export class MainScene extends Phaser.Scene {
                     }
                     this.setScore(this.score + score);
                     this.usedWords[word] = true;
+                    this.usedWordsColumn.text += " " + word;
+                    this.finishedWordPoints.setText("+" + score);
+                    this.finishedWordPoints.x = this.finishedWord.getRightCenter().x + 15;
                 }
             } else {
                 this.finishedWord.text = "Invalid word!";
