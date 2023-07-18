@@ -10,9 +10,13 @@ export class MainScene extends Phaser.Scene {
     finishedWord: Phaser.GameObjects.Text;
     wordConnections: Phaser.GameObjects.Line[];
 
+    scoreDisplay: Phaser.GameObjects.Text;
+    score: number;
+
     selectedButton: string;
     buildingWord: boolean;
     currentWord: string[];
+    usedWords: { [word: string]: boolean };
     tilesUsed: boolean[][];
     lastTile: Phaser.Math.Vector2;
 
@@ -36,6 +40,7 @@ export class MainScene extends Phaser.Scene {
         this.currentWord = [];
         this.wordConnections = [];
         this.lastTile = Phaser.Math.Vector2.ZERO.clone();
+        this.usedWords = {};
 
         this.tilesUsed = [];
         this.boardLetters = [];
@@ -57,10 +62,18 @@ export class MainScene extends Phaser.Scene {
         // Track a few finished words
         this.finishedWord = this.add.text(520, 190, "", { ...config()["tileStyle"], font: "bold 26px Verdana" });
 
+        this.scoreDisplay = this.add.text(520, 50, "", { ...config()["tileStyle"], font: "bold 26px Verdana" })
+        this.setScore(0);
+
         this.loadBoard(generateBoard(config()["boardSize"]));
 
         this.resize(true);
         this.scale.on("resize", this.resize, this);
+    }
+
+    setScore(score: number) {
+        this.score = score;
+        this.scoreDisplay.setText("Score: " + this.score);
     }
 
     loadBoard(board: Board) {
@@ -95,6 +108,8 @@ export class MainScene extends Phaser.Scene {
         switch (buttonName) {
             case "reset":
                 this.loadBoard(generateBoard(config()["boardSize"]));
+                this.setScore(0);
+                this.usedWords = {};
                 break;
         }
     }
@@ -165,7 +180,21 @@ export class MainScene extends Phaser.Scene {
 
             // Check if word is valid
             if (this.cache.json.get("dictionary")[word]) {
-                this.finishedWord.text = word;
+                if (word in this.usedWords) {
+                    this.finishedWord.text = "Word already used!";
+                } else {
+                    this.finishedWord.text = word;
+
+                    let length = this.finishedWord.text.length;
+                    let score = 0;
+                    if (length >= config()["maxPointsLength"]) {
+                        score = config()["wordValue"]["MAX"];
+                    } else {
+                        score = config()["wordValue"][length];
+                    }
+                    this.setScore(this.score + score);
+                    this.usedWords[word] = true;
+                }
             } else {
                 this.finishedWord.text = "Invalid word!";
             }
