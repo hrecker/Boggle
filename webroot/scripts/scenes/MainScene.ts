@@ -21,7 +21,8 @@ export class MainScene extends Phaser.Scene {
     tilesUsed: boolean[][];
     lastTile: Phaser.Math.Vector2;
 
-    usedWordsColumn: Phaser.GameObjects.Text;
+    usedWordsColumn1: Phaser.GameObjects.Text;
+    usedWordsColumn2: Phaser.GameObjects.Text;
 
     constructor() {
         super({
@@ -59,17 +60,18 @@ export class MainScene extends Phaser.Scene {
             }
         }
 
-        this.resetButton = this.add.sprite(80, 200, "tile");
+        this.resetButton = this.add.sprite(60, 200, "tile");
         this.configureButton(this.resetButton, "reset");
 
         // Track a few finished words
-        this.finishedWord = this.add.text(520, 90, "", { ...config()["tileStyle"], font: "bold 32px Verdana" });
-        this.finishedWordPoints = this.add.text(520, 90, "", { ...config()["tileStyle"], font: "bold 30px Verdana" });
+        this.finishedWord = this.add.text(490, 90, "", { ...config()["tileStyle"], font: "bold 32px Verdana" });
+        this.finishedWordPoints = this.add.text(490, 90, "", { ...config()["tileStyle"], font: "bold 30px Verdana" });
 
-        this.scoreDisplay = this.add.text(520, 40, "", { ...config()["tileStyle"], font: "bold 26px Verdana" });
+        this.scoreDisplay = this.add.text(490, 40, "", { ...config()["tileStyle"], font: "bold 26px Verdana" });
         this.setScore(0);
 
-        this.usedWordsColumn = this.add.text(530, 120, "", { ...config()["tileStyle"], font: "bold 24px Verdana" }).setWordWrapWidth(1);
+        this.usedWordsColumn1 = this.add.text(500, 120, "", { ...config()["tileStyle"], font: "bold 24px Verdana" }).setWordWrapWidth(1);
+        this.usedWordsColumn2 = this.add.text(640, 120, "", { ...config()["tileStyle"], font: "bold 24px Verdana" }).setWordWrapWidth(1);
 
         this.loadBoard(generateBoard(config()["boardSize"]));
 
@@ -118,14 +120,15 @@ export class MainScene extends Phaser.Scene {
                 this.usedWords = {};
                 this.finishedWord.text = "";
                 this.finishedWordPoints.text = "";
-                this.usedWordsColumn.text = "";
+                this.usedWordsColumn1.text = "";
+                this.usedWordsColumn2.text = "";
                 break;
         }
     }
 
     createTile(i: number, j: number) {
         //TODO resizing
-        let tile = this.add.sprite((j + 1) * tileMargin + 120, (i + 1) * tileMargin - 10, "tile");
+        let tile = this.add.sprite((j + 1) * tileMargin + 80, (i + 1) * tileMargin - 10, "tile");
         tile.setData("index", new Phaser.Math.Vector2(i, j));
         tile.setInteractive();
         tile.on('pointerdown', () => {
@@ -136,7 +139,7 @@ export class MainScene extends Phaser.Scene {
 
     createTileText(i: number, j: number) {
         //TODO resizing
-        let text = this.add.text((j + 1) * tileMargin + 120, (i + 1) * tileMargin - 10, "", config()["tileStyle"]).setOrigin(0.5);
+        let text = this.add.text((j + 1) * tileMargin + 80, (i + 1) * tileMargin - 10, "", config()["tileStyle"]).setOrigin(0.5);
         text.setInteractive();
         text.on('pointerdown', () => {
             this.startWord(i, j);
@@ -204,7 +207,12 @@ export class MainScene extends Phaser.Scene {
                     }
                     this.setScore(this.score + score);
                     this.usedWords[word] = true;
-                    this.usedWordsColumn.text += " " + word;
+                    let column = this.usedWordsColumn1;
+                    console.log(this.usedWordsColumn1.getBottomCenter());
+                    if (this.usedWordsColumn1.getBottomCenter().y > this.game.renderer.height - 30) {
+                        column = this.usedWordsColumn2;
+                    } 
+                    column.text += " " + word;
                     this.finishedWordPoints.setText("+" + score);
                     this.finishedWordPoints.x = this.finishedWord.getRightCenter().x + 15;
                 }
