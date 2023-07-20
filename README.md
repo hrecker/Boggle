@@ -1,4 +1,4 @@
-# WordGame
+# Boggle
 A browser game built with Phaser 3.
 
 ## Word source
