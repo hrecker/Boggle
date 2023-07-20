@@ -34,6 +34,8 @@ export class LoadingScene extends Phaser.Scene {
         this.scale.on("resize", this.resize, this);
 
         this.load.image("tile", "assets/sprites/tile.png");
+        
+        this.load.bitmapFont('timerFont', 'assets/fonts/timerFont.png', 'assets/fonts/timerFont.xml');
 
         // Load json
         this.load.json("config", "assets/json/config.json");
